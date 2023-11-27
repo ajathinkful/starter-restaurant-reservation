@@ -59,8 +59,11 @@ function Dashboard() {
       <ul>
         {reservations.map((reservation) => (
           <li key={reservation.reservation_id}>
-            {reservation.first_name} {reservation.last_name} -{" "}
-            {reservation.reservation_time}
+            {`${reservation.first_name} ${
+              reservation.last_name
+            } - Date: ${formatAsDate(reservation.reservation_date)}, Time: ${
+              reservation.reservation_time
+            }, Phone: ${reservation.mobile_number}`}
           </li>
         ))}
       </ul>
