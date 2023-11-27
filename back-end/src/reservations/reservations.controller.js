@@ -1,12 +1,25 @@
+// back-end/src/reservations/reservations.controller.js
+
+const service = require("./reservations.service");
+const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+
 /**
  * List handler for reservation resources
  */
 async function list(req, res) {
-  res.json({
-    data: [],
-  });
+  const data = await service.list();
+  res.json({ data });
+}
+
+/**
+ * Create handler for reservation resources
+ */
+async function create(req, res) {
+  const newReservation = await service.create(req.body);
+  res.status(201).json({ data: newReservation });
 }
 
 module.exports = {
-  list,
+  list: [asyncErrorBoundary(list)],
+  create: [asyncErrorBoundary(create)],
 };

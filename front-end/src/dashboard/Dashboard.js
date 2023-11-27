@@ -1,14 +1,14 @@
+// Dashboard.js
 import React, { useEffect, useState } from "react";
 import { listReservations } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
+import useQuery from "../utils/useQuery";
+import { formatAsDate, previous, today, next } from "../utils/date-time";
 
-/**
- * Defines the dashboard page.
- * @param date
- *  the date for which the user wants to view reservations.
- * @returns {JSX.Element}
- */
-function Dashboard({ date }) {
+function Dashboard() {
+  const query = useQuery();
+  const queryDate = query.get("date");
+  const [date, setDate] = useState(queryDate || today());
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
 
@@ -17,20 +17,53 @@ function Dashboard({ date }) {
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
-    listReservations({ date }, abortController.signal)
+    listReservations(date, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
     return () => abortController.abort();
   }
 
+  const handleDateChange = (action) => {
+    let newDate;
+
+    // Calculate the new date based on the action (previous, today, next)
+    if (action === "previous") {
+      newDate = previous(date);
+    } else if (action === "today") {
+      newDate = today();
+    } else if (action === "next") {
+      newDate = next(date);
+    }
+
+    // Update the date in the URL
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set("date", newDate);
+    window.history.replaceState(null, null, `?${searchParams.toString()}`);
+
+    // Update the state with the new date
+    setDate(newDate);
+  };
+
   return (
     <main>
       <h1>Dashboard</h1>
       <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for date</h4>
+        <h4 className="mb-0">Reservations for date {formatAsDate(date)}</h4>
+        <div className="ml-auto">
+          <button onClick={() => handleDateChange("previous")}>Previous</button>
+          <button onClick={() => handleDateChange("today")}>Today</button>
+          <button onClick={() => handleDateChange("next")}>Next</button>
+        </div>
       </div>
       <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+      <ul>
+        {reservations.map((reservation) => (
+          <li key={reservation.reservation_id}>
+            {reservation.first_name} {reservation.last_name} -{" "}
+            {reservation.reservation_time}
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
