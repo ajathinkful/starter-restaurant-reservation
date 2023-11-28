@@ -5,6 +5,8 @@
  */
 import formatReservationDate from "./format-reservation-date";
 import formatReservationTime from "./format-reservation-time"; // Import formatReservationTime
+import { today } from "./date-time";
+import { formatAsDate } from "./date-time";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
@@ -56,15 +58,44 @@ async function fetchJson(url, options, onCancel) {
 }
 
 /**
- * Retrieves all existing reservation.
+ * Retrieves all existing reservations.
  * @returns {Promise<[reservation]>}
- *  a promise that resolves to a possibly empty array of reservation saved in the database.
+ *  a promise that resolves to a possibly empty array of reservations.
  */
 export async function listReservations(date, signal) {
+  const currentDate = date || today();
   const url = new URL(`${API_BASE_URL}/reservations`);
-  url.searchParams.append("date", date);
+  url.searchParams.append("date", currentDate);
 
-  return await fetchJson(url, { headers, signal }).then(formatReservationDate);
+  console.log("API Request URL:", url.toString());
+
+  try {
+    const response = await fetch(url, { headers, signal });
+    const responseData = await response.json();
+
+    console.log("API Response Data:", responseData);
+
+    if (!Array.isArray(responseData.data)) {
+      console.error("API Response does not contain an array:", responseData);
+      return []; // Return an empty array or handle it as appropriate
+    }
+
+    // Filter reservations based on the provided date
+
+    const filteredReservations = responseData.data.filter(
+      (reservation) =>
+        formatAsDate(reservation.reservation_date) === currentDate
+    );
+
+    console.log("Filtered Reservations:", filteredReservations);
+
+    // Use formatReservationTime here
+    return formatReservationTime(filteredReservations);
+  } catch (error) {
+    // Handle errors
+    console.error(error.stack);
+    throw error;
+  }
 }
 
 /**
