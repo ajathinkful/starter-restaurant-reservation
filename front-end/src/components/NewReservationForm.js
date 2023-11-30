@@ -27,13 +27,22 @@ function NewReservationForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Add a check for Tuesday here using the updated helper function
-    const selectedDate = new Date(
-      `${formData.reservation_date}T${formData.reservation_time}:00.000Z`
-    );
+    const selectedDateTime = `${formData.reservation_date}T${formData.reservation_time}:00.000Z`;
+    const selectedDate = new Date(selectedDateTime);
+
+    // Check if the selected date is a Tuesday
     if (isTuesday(selectedDate)) {
       setFormError(
         "Reservations cannot be made on Tuesdays. Please choose a different date."
+      );
+      return;
+    }
+
+    // Check if the selected date is in the past
+    const now = new Date(); // Current date and time
+    if (selectedDate < now) {
+      setFormError(
+        "Past reservations are not allowed. Please choose a future date."
       );
       return;
     }

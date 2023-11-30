@@ -2,16 +2,39 @@
 
 const knex = require("../db/connection");
 
-async function create(newReservationData) {
+async function create({ data }) {
+  const {
+    first_name,
+    last_name,
+    mobile_number,
+    reservation_date,
+    reservation_time,
+    people,
+  } = data;
+
+  console.log("Received Data:", data);
+
+  if (!first_name) {
+    console.log("Error: first_name");
+    throw { status: 400, message: "first_name" };
+  }
+
+  if (!last_name) {
+    console.log("Error: last_name");
+    throw { status: 400, message: "last_name" };
+  }
+
+  // Check if required fields are present
+
   // Insert new reservation into the database
   const [newReservation] = await knex("reservations")
     .insert({
-      first_name: newReservationData.first_name,
-      last_name: newReservationData.last_name,
-      mobile_number: newReservationData.mobile_number,
-      reservation_date: newReservationData.reservation_date,
-      reservation_time: newReservationData.reservation_time,
-      people: newReservationData.people,
+      first_name,
+      last_name,
+      mobile_number,
+      reservation_date,
+      reservation_time,
+      people,
     })
     .returning("*");
 

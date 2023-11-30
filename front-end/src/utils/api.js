@@ -46,8 +46,8 @@ async function fetchJson(url, options, onCancel) {
       return Promise.reject({ message: payload.error });
     }
 
-    // Use formatReservationTime here
-    return formatReservationTime(payload.data);
+    // Adjust the handling based on the new structure
+    return payload.data;
   } catch (error) {
     if (error.name !== "AbortError") {
       console.error(error.stack);
@@ -114,15 +114,61 @@ export async function listReservations(date, signal) {
  *  a promise that resolves to the created reservation or an error.
  *  If the response is not in the 200 - 399 range, the promise is rejected.
  */
+// ... (previous code)
+
+// ... (previous code)
+
+/**
+ * Creates a new reservation.
+ * @param reservation
+ *  an object containing reservation details:
+ *    - first_name
+ *    - last_name
+ *    - mobile_number
+ *    - reservation_date
+ *    - reservation_time
+ *    - people
+ * @param signal
+ *  an optional AbortController signal for aborting the request.
+ * @returns {Promise<Error|any>}
+ *  a promise that resolves to the created reservation or an error.
+ *  If the response is not in the 200 - 399 range, the promise is rejected.
+ */
 export async function createReservation(reservation, signal) {
   const url = new URL(`${API_BASE_URL}/reservations`);
   const options = {
     method: "POST",
     headers,
-    body: JSON.stringify(reservation),
+    body: JSON.stringify({ data: reservation }), // Wrap the reservation in a 'data' property
   };
 
-  return await fetchJson(url, { ...options, signal }).then(
-    formatReservationDate
-  );
+  let response; // Declare response outside the try block
+
+  try {
+    // Log the data before sending
+    console.log("Reservation Data Sent:", { data: reservation });
+
+    response = await fetch(url, { ...options, signal });
+    const responseData = await response.json();
+
+    console.log("Create Reservation Response Data:", responseData);
+
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error(responseData.error || "Failed to create reservation");
+    }
+
+    // Check if the expected 'data' property is present in the response
+    if (!responseData.hasOwnProperty("data")) {
+      throw new Error("Response does not contain 'data' property");
+    }
+
+    return responseData.data;
+  } catch (error) {
+    console.error("Error creating reservation:", error);
+
+    // Log the entire response for inspection
+    console.log("Error Response:", response);
+
+    throw error;
+  }
 }
