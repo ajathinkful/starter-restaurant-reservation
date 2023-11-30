@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { createReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
+import { isTuesday } from "../utils/date-time";
 
 function NewReservationForm() {
   const history = useHistory();
@@ -22,8 +23,21 @@ function NewReservationForm() {
     });
   };
 
+  // Add console logs to check the values
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Add a check for Tuesday here using the updated helper function
+    const selectedDate = new Date(
+      `${formData.reservation_date}T${formData.reservation_time}:00.000Z`
+    );
+    if (isTuesday(selectedDate)) {
+      setFormError(
+        "Reservations cannot be made on Tuesdays. Please choose a different date."
+      );
+      return;
+    }
+
     try {
       await createReservation(formData);
       // Assuming createReservation redirects on success, else you can do it manually
