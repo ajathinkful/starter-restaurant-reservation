@@ -30,6 +30,37 @@ function NewReservationForm() {
     const selectedDateTime = `${formData.reservation_date}T${formData.reservation_time}:00.000Z`;
     const selectedDate = new Date(selectedDateTime);
 
+    const openingTime = new Date(selectedDate);
+    openingTime.setUTCHours(10, 30, 0, 0); // Set opening time to 10:30 AM UTC
+
+    if (selectedDate < openingTime) {
+      setFormError(
+        "Reservations cannot be made before 10:30 AM. Please choose a later time."
+      );
+      return;
+    }
+
+    const closingTime = new Date(selectedDate);
+    closingTime.setUTCHours(21, 30, 0, 0); // Set closing time to 9:30 PM UTC
+
+    if (selectedDate > closingTime) {
+      setFormError(
+        "Reservations cannot be made after 9:30 PM. Please choose an earlier time."
+      );
+      return;
+    }
+
+    // Check if the reservation time is too close to closing time (within 60 minutes)
+    const timeBeforeClosing = new Date(selectedDate);
+    timeBeforeClosing.setUTCHours(20, 30, 0, 0); // Set time 60 minutes before closing
+
+    if (selectedDate <= timeBeforeClosing) {
+      setFormError(
+        "Reservations cannot be made within 60 minutes of closing time. Please choose a later time."
+      );
+      return;
+    }
+
     // Check if the selected date is a Tuesday
     if (isTuesday(selectedDate)) {
       setFormError(
