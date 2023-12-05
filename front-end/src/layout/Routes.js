@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import NewReservationForm from "../components/NewReservationForm";
+import NewTableForm from "../components/NewTableForm";
 import { today } from "../utils/date-time";
 
 function Routes() {
@@ -16,6 +17,9 @@ function Routes() {
       </Route>
       <Route exact={true} path="/reservations/new">
         <NewReservationForm />
+      </Route>
+      <Route exact={true} path="/tables/new">
+        <NewTableForm />
       </Route>
       <Route path="/dashboard">
         <Dashboard date={today()} />

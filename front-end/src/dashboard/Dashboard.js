@@ -1,9 +1,10 @@
 // Dashboard.js
 import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
 import { formatAsDate, previous, today, next } from "../utils/date-time";
+import { useHistory } from "react-router-dom";
 
 function Dashboard() {
   const query = useQuery();
@@ -11,6 +12,9 @@ function Dashboard() {
   const [date, setDate] = useState(queryDate || today());
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
+  const history = useHistory();
+  const [tables, setTables] = useState([]);
+  const [dashboardError, setDashboardError] = useState(null);
 
   useEffect(loadDashboard, [date]);
 
@@ -23,6 +27,15 @@ function Dashboard() {
         setReservations(reservations);
       })
       .catch(setReservationsError);
+
+    listTables()
+      .then((tables) => {
+        setTables(tables);
+      })
+      .catch((error) => {
+        console.error("Error fetching tables:", error);
+        setDashboardError(error); // Update the state variable
+      });
     return () => abortController.abort();
   }
 
@@ -67,9 +80,31 @@ function Dashboard() {
             } - Date: ${formatAsDate(reservation.reservation_date)}, Time: ${
               reservation.reservation_time
             }, Phone: ${reservation.mobile_number}`}
+            <button
+              onClick={() =>
+                history.push(`/reservations/${reservation.reservation_id}/seat`)
+              }
+            >
+              Seat
+            </button>
           </li>
         ))}
       </ul>
+      <div>
+        <h4>Tables</h4>
+        <ul>
+          {tables.map((table) => (
+            <li key={table.table_id}>
+              Table: {table.table_name} - Capacity: {table.capacity}{" "}
+              {table.reservation_id ? (
+                <span data-table-id-status={table.table_id}>Occupied</span>
+              ) : (
+                <span data-table-id-status={table.table_id}>Free</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }

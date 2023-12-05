@@ -172,3 +172,32 @@ export async function createReservation(reservation, signal) {
     throw error;
   }
 }
+
+/**
+ * Retrieves all existing tables.
+ * @returns {Promise<[table]>}
+ *  a promise that resolves to a possibly empty array of tables.
+ */
+export async function listTables() {
+  const url = new URL(`${API_BASE_URL}/tables`);
+
+  console.log("API Request URL:", url.toString());
+
+  try {
+    const response = await fetch(url, { headers });
+    const responseData = await response.json();
+
+    console.log("API Response Data (Tables):", responseData);
+
+    if (!Array.isArray(responseData.data)) {
+      console.error("API Response does not contain an array:", responseData);
+      return []; // Return an empty array or handle it as appropriate
+    }
+
+    return responseData.data;
+  } catch (error) {
+    // Handle errors
+    console.error(error.stack);
+    throw error;
+  }
+}
