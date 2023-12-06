@@ -72,14 +72,30 @@ function Dashboard() {
         </div>
       </div>
       <ErrorAlert error={reservationsError} />
+
       <ul>
         {reservations.map((reservation) => (
           <li key={reservation.reservation_id}>
-            {`${reservation.first_name} ${
-              reservation.last_name
-            } - Date: ${formatAsDate(reservation.reservation_date)}, Time: ${
-              reservation.reservation_time
-            }, Phone: ${reservation.mobile_number}`}
+            <div>
+              <label>First name:</label> {reservation.first_name}
+            </div>
+            <div>
+              <label>Last name:</label> {reservation.last_name}
+            </div>
+            <div>
+              <label>Mobile number:</label> {reservation.mobile_number}
+            </div>
+            <div>
+              <label>Date of reservation:</label>{" "}
+              {formatAsDate(reservation.reservation_date)}
+            </div>
+            <div>
+              <label>Time of reservation:</label> {reservation.reservation_time}
+            </div>
+            <div>
+              <label>Number of people in the party:</label>{" "}
+              {reservation.people || "N/A"}
+            </div>
             <button
               onClick={() =>
                 history.push(`/reservations/${reservation.reservation_id}/seat`)

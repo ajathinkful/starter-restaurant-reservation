@@ -67,13 +67,13 @@ export async function listReservations(date, signal) {
   const url = new URL(`${API_BASE_URL}/reservations`);
   url.searchParams.append("date", currentDate);
 
-  console.log("API Request URL:", url.toString());
+  // console.log("API Request URL:", url.toString());
 
   try {
     const response = await fetch(url, { headers, signal });
     const responseData = await response.json();
 
-    console.log("API Response Data:", responseData);
+    // console.log("API Response Data:", responseData);
 
     if (!Array.isArray(responseData.data)) {
       console.error("API Response does not contain an array:", responseData);
@@ -87,7 +87,7 @@ export async function listReservations(date, signal) {
         formatAsDate(reservation.reservation_date) === currentDate
     );
 
-    console.log("Filtered Reservations:", filteredReservations);
+    // console.log("Filtered Reservations:", filteredReservations);
 
     // Use formatReservationTime here
     return formatReservationTime(filteredReservations);
@@ -201,3 +201,54 @@ export async function listTables() {
     throw error;
   }
 }
+
+// api.js
+// ... (your existing code)
+
+export async function createTable(tableData) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ data: tableData }), // Wrap the tableData in a 'data' property
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const responseData = await response.json();
+
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error(responseData.error || "Failed to create table");
+    }
+
+    if (!responseData.hasOwnProperty("data")) {
+      throw new Error("Response does not contain 'data' property");
+    }
+
+    return responseData.data;
+  } catch (error) {
+    console.error("Error creating table:", error);
+    throw error;
+  }
+}
+
+// api.js
+const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+
+async function seatReservation(reservation_id, table_id) {
+  const response = await fetch(`${BASE_URL}/tables/${table_id}/seat`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: { reservation_id } }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to seat reservation. Status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export { seatReservation };
