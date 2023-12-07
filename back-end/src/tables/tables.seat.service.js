@@ -11,10 +11,7 @@ async function seatReservation(table_id, reservation_id) {
     .returning("*");
 
   // Update the reservation in the database to mark it as seated
-  await knex("reservations")
-    .where({ reservation_id })
-    .update({ status: "seated" });
-
+  console.log("Updated table:", seatedTable);
   return seatedTable;
 }
 

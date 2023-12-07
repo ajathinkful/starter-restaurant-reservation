@@ -12,6 +12,7 @@ async function seatReservation(req, res) {
     req.params.table_id,
     reservation_id
   );
+  console.log("Response from service:", seatedTable);
 
   res.status(200).json({ data: seatedTable });
 }

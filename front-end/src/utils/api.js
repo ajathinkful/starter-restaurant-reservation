@@ -233,7 +233,7 @@ export async function createTable(tableData) {
 }
 
 // api.js
-const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5001";
 
 async function seatReservation(reservation_id, table_id) {
   const response = await fetch(`${BASE_URL}/tables/${table_id}/seat`, {
