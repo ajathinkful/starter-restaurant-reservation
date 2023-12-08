@@ -57,6 +57,11 @@ function SeatReservation() {
     }
   };
 
+  const handleCancel = () => {
+    // Go back to the previous page
+    history.goBack();
+  };
+
   return (
     <div>
       <h2>Seat Reservation</h2>
@@ -83,6 +88,9 @@ function SeatReservation() {
           </ul>
         </div>
         <button type="submit">Submit</button>
+        <button type="button" onClick={handleCancel}>
+          Cancel
+        </button>
       </form>
     </div>
   );
