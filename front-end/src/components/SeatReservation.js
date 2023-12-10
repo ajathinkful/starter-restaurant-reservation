@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { listTables, seatReservation } from "../utils/api";
+import {
+  getReservationPeople,
+  listTables,
+  seatReservation,
+  isTableOccupied,
+} from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 function SeatReservation() {
@@ -13,13 +18,10 @@ function SeatReservation() {
 
   useEffect(() => {
     // Fetch available tables
+    // Fetch available tables
     listTables()
       .then((tableList) => {
-        // Filter tables to get only available ones
-        const availableTables = tableList.filter(
-          (table) => !table.reservation_id
-        );
-        setTables(availableTables);
+        setTables(tableList);
         setTableList(tableList);
       })
       .catch((error) => {
@@ -39,12 +41,41 @@ function SeatReservation() {
         return;
       }
 
-      console.log("Before seatReservation");
-
       // Extract the table_id from the selectedTable object
       const tableId = selectedTable.table_id;
 
-      console.log("Table ID:", tableId);
+      // Fetch the selected table to ensure it's up-to-date
+      const updatedTableList = await listTables();
+
+      const updatedTable = updatedTableList.find(
+        (table) => table.table_id === tableId
+      );
+
+      // Check if the selected table is still available
+      if (!updatedTable || updatedTable.reservation_id) {
+        console.error("Selected table is no longer available.");
+        setFormError("Selected table is no longer available.");
+        return;
+      }
+
+      // Check if the table is already occupied
+      const tableOccupied = await isTableOccupied(tableId);
+
+      if (tableOccupied) {
+        console.error("Selected table is already occupied.");
+        setFormError("Selected table is already occupied.");
+        return;
+      }
+
+      // Fetch the number of people for the reservation
+      const reservationPeople = await getReservationPeople(reservation_id);
+
+      // Check if the reservation's people exceed the table's capacity
+      if (selectedTable.capacity < reservationPeople) {
+        console.error("Table capacity is insufficient for the reservation.");
+        setFormError("Table capacity is insufficient for the reservation.");
+        return;
+      }
 
       // Send a request to seat the reservation at the selected table
       await seatReservation(reservation_id, tableId);

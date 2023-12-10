@@ -21,8 +21,22 @@ async function list() {
   return await knex("tables").select("*");
 }
 
+async function read(table_id) {
+  const table = await knex("tables").where({ table_id }).first();
+
+  if (!table) {
+    throw {
+      status: 404,
+      message: `Table with ID ${table_id} not found`,
+    };
+  }
+
+  return table;
+}
+
 // Export your service functions
 module.exports = {
   create,
   list,
+  read,
 };

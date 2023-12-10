@@ -235,20 +235,99 @@ export async function createTable(tableData) {
 // api.js
 const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5001";
 
-async function seatReservation(reservation_id, table_id) {
-  const response = await fetch(`${BASE_URL}/tables/${table_id}/seat`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ data: { reservation_id } }),
-  });
+async function seatReservation(reservation_id, table_id, signal) {
+  try {
+    // Fetch the selected reservation to check the number of people
+    const reservationResponse = await fetch(
+      `${BASE_URL}/reservations/${reservation_id}`
+    );
+    const reservationData = await reservationResponse.json();
 
-  if (!response.ok) {
-    throw new Error(`Failed to seat reservation. Status: ${response.status}`);
+    if (!reservationResponse.ok) {
+      throw new Error(
+        `Failed to fetch reservation details. Status: ${reservationResponse.status}`
+      );
+    }
+
+    const { people: reservationPeople } = reservationData;
+
+    // Fetch the selected table to check its capacity
+    const tableResponse = await fetch(`${BASE_URL}/tables/${table_id}`);
+    const tableData = await tableResponse.json();
+
+    if (!tableResponse.ok) {
+      throw new Error(
+        `Failed to fetch table details. Status: ${tableResponse.status}`
+      );
+    }
+
+    const { capacity: tableCapacity } = tableData;
+
+    // Check if the table capacity is less than the number of people in the reservation
+    if (tableCapacity < reservationPeople) {
+      // If the capacity is insufficient, return a 400 response with an error message
+      throw new Error("Table capacity is insufficient for the reservation");
+    }
+
+    // If capacity is sufficient, proceed with seating the reservation
+    const response = await fetch(`${BASE_URL}/tables/${table_id}/seat`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ data: { reservation_id } }),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to seat reservation. Status: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error seating reservation:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export { seatReservation };
+
+export async function getReservationPeople(reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
+
+  try {
+    const response = await fetch(url, { headers, signal });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch reservation details. Status: ${response.status}`
+      );
+    }
+
+    return responseData.data.people;
+  } catch (error) {
+    console.error("Error fetching reservation details:", error);
+    throw error;
+  }
+}
+
+export async function isTableOccupied(table_id, signal) {
+  const url = new URL(`${API_BASE_URL}/tables/${table_id}`);
+
+  try {
+    const response = await fetch(url, { headers, signal });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch table details. Status: ${response.status}`
+      );
+    }
+
+    return responseData.data.reservation_id !== null;
+  } catch (error) {
+    console.error("Error fetching table details:", error);
+    throw error;
+  }
+}

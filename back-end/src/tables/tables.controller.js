@@ -15,8 +15,15 @@ async function create(req, res) {
   res.status(201).json({ data: newTable });
 }
 
+async function read(req, res) {
+  const { table_id } = req.params;
+  const table = await service.read(table_id);
+  res.json({ data: table });
+}
+
 // Export your controller functions
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(create)],
+  read: [asyncErrorBoundary(read)],
 };

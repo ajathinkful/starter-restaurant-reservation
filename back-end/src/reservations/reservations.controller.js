@@ -19,7 +19,17 @@ async function create(req, res) {
   res.status(201).json({ data: newReservation });
 }
 
+/**
+ * Read handler for a specific reservation resource
+ */
+async function read(req, res) {
+  const { reservation_id } = req.params;
+  const reservation = await service.read(reservation_id);
+  res.json({ data: reservation });
+}
+
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(create)],
+  read: [asyncErrorBoundary(read)], // Add the read function
 };

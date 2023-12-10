@@ -46,7 +46,24 @@ async function list() {
   return await knex("reservations").select("*");
 }
 
+async function read(reservation_id) {
+  // Fetch a specific reservation from the database
+  const reservation = await knex("reservations")
+    .where({ reservation_id })
+    .first();
+
+  if (!reservation) {
+    throw {
+      status: 404,
+      message: `Reservation with ID ${reservation_id} not found`,
+    };
+  }
+
+  return reservation;
+}
+
 module.exports = {
   create,
   list,
+  read,
 };
