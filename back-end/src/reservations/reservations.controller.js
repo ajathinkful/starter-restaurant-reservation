@@ -28,8 +28,18 @@ async function read(req, res) {
   res.json({ data: reservation });
 }
 
+async function updateStatus(req, res) {
+  const { reservation_id } = req.params;
+  const { status } = req.body.data;
+
+  const updatedReservation = await service.updateStatus(reservation_id, status);
+
+  res.json({ data: updatedReservation });
+}
+
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(read)], // Add the read function
+  updateStatus: [asyncErrorBoundary(updateStatus)],
 };

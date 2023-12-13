@@ -34,9 +34,17 @@ async function read(table_id) {
   return table;
 }
 
+async function finishTable(table_id) {
+  // Update the table in the database to mark it as available
+  await knex("tables")
+    .where({ table_id })
+    .update({ occupied: false, reservation_id: null });
+}
+
 // Export your service functions
 module.exports = {
   create,
   list,
   read,
+  finishTable,
 };

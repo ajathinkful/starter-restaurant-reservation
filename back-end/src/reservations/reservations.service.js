@@ -62,8 +62,22 @@ async function read(reservation_id) {
   return reservation;
 }
 
+async function updateStatus(reservation_id, newStatus) {
+  const validStatusValues = ["booked", "seated", "finished"];
+
+  if (!validStatusValues.includes(newStatus)) {
+    throw { status: 400, message: "Invalid status value" };
+  }
+
+  return await knex("reservations")
+    .where({ reservation_id })
+    .update({ status: newStatus })
+    .returning("*");
+}
+
 module.exports = {
   create,
   list,
   read,
+  updateStatus,
 };

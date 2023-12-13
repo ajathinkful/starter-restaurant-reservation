@@ -21,9 +21,16 @@ async function read(req, res) {
   res.json({ data: table });
 }
 
+async function finishTable(req, res) {
+  const { table_id } = req.params;
+  await service.finishTable(table_id);
+  res.sendStatus(204); // No content, indicating successful deletion
+}
+
 // Export your controller functions
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(read)],
+  finishTable: [asyncErrorBoundary(finishTable)],
 };

@@ -9,6 +9,7 @@ exports.up = function (knex) {
     table.date("reservation_date").notNullable();
     table.time("reservation_time").notNullable();
     table.integer("people").notNullable();
+    table.string("status").defaultTo("booked"); // Add the status column with a default value
     table.timestamps(true, true);
   });
 };

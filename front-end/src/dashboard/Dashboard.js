@@ -60,6 +60,38 @@ function Dashboard() {
     setDate(newDate);
   };
 
+  function handleFinishConfirmation(tableId) {
+    const isTableReady = window.confirm(
+      "Is this table ready to seat new guests? This cannot be undone."
+    );
+
+    if (isTableReady) {
+      // 1. Send a DELETE request to /tables/:table_id/seat
+      fetch(`http://localhost:5001/tables/${tableId}/seat`, {
+        method: "DELETE",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log(`Table ${tableId} has been successfully finished.`);
+            // 2. Refresh the List of Tables
+            return fetch(`http://localhost:5001/tables`); // or a specific table endpoint
+          } else {
+            console.error(
+              `Error finishing table ${tableId}: ${response.statusText}`
+            );
+            throw new Error("Failed to finish the table.");
+          }
+        })
+        .then((updatedTablesResponse) => updatedTablesResponse.json())
+        .then((updatedTables) => {
+          setTables(updatedTables.data); // Update the state with the new list of tables
+        })
+        .catch((error) => {
+          console.error("An error occurred while finishing the table:", error);
+        });
+    }
+  }
+
   return (
     <main>
       <h1>Dashboard</h1>
@@ -113,7 +145,15 @@ function Dashboard() {
             <li key={table.table_id}>
               Table: {table.table_name} - Capacity: {table.capacity}{" "}
               {table.reservation_id ? (
-                <span data-table-id-status={table.table_id}>Occupied</span>
+                <span data-table-id-status={table.table_id}>
+                  Occupied{" "}
+                  <button
+                    data-table-id-finish={table.table_id}
+                    onClick={() => handleFinishConfirmation(table.table_id)}
+                  >
+                    Finish
+                  </button>
+                </span>
               ) : (
                 <span data-table-id-status={table.table_id}>Free</span>
               )}
