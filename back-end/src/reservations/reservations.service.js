@@ -75,9 +75,31 @@ async function updateStatus(reservation_id, newStatus) {
     .returning("*");
 }
 
+// back-end/src/reservations/reservations.service.js
+
+async function search(mobile_number) {
+  return knex("reservations")
+    .select(
+      "reservation_id",
+      "first_name",
+      "last_name",
+      "mobile_number",
+      "reservation_date",
+      "reservation_time",
+      "people",
+      "status"
+    )
+    .whereRaw(
+      "translate(mobile_number, '() -', '') like ?",
+      `%${mobile_number.replace(/\D/g, "")}%`
+    )
+    .orderBy("reservation_date");
+}
+
 module.exports = {
   create,
   list,
   read,
   updateStatus,
+  search,
 };

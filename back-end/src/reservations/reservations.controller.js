@@ -37,9 +37,16 @@ async function updateStatus(req, res) {
   res.json({ data: updatedReservation });
 }
 
+async function search(req, res) {
+  const { mobile_number } = req.query;
+  const data = await service.search(mobile_number);
+  res.json({ data });
+}
+
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(read)], // Add the read function
   updateStatus: [asyncErrorBoundary(updateStatus)],
+  search: [asyncErrorBoundary(search)],
 };

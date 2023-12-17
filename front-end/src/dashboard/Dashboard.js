@@ -3,7 +3,13 @@ import React, { useEffect, useState } from "react";
 import { listReservations, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import useQuery from "../utils/useQuery";
-import { formatAsDate, previous, today, next } from "../utils/date-time";
+import {
+  formatAsDate,
+  formatAsTime,
+  previous,
+  today,
+  next,
+} from "../utils/date-time";
 import { useHistory } from "react-router-dom";
 
 function Dashboard() {
@@ -169,7 +175,7 @@ function Dashboard() {
               </div>
               <div>
                 <label>Time of reservation:</label>{" "}
-                {reservation.reservation_time}
+                {formatAsTime(reservation.reservation_time)}
               </div>
               <div>
                 <label>Number of people in the party:</label>{" "}
