@@ -11,6 +11,7 @@ import {
   next,
 } from "../utils/date-time";
 import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
   const query = useQuery();
@@ -139,6 +140,50 @@ function Dashboard() {
     }
   }
 
+  const handleCancelConfirmation = (reservationId) => {
+    const confirmCancel = window.confirm(
+      "Do you want to cancel this reservation? This cannot be undone."
+    );
+
+    if (confirmCancel) {
+      // Send a PUT request to update reservation status to "cancelled"
+      fetch(`http://localhost:5001/reservations/${reservationId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data: {
+            status: "cancelled",
+          },
+        }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log(
+              `Reservation ${reservationId} has been successfully cancelled.`
+            );
+            // Refresh the dashboard after updating the status
+            loadDashboard();
+          } else {
+            console.error(
+              `Error cancelling reservation ${reservationId}: ${response.statusText}`
+            );
+            return response.json(); // Add this line to parse and log the response body
+          }
+        })
+        .then((errorData) => {
+          console.log("Error response data:", errorData);
+          throw new Error("Failed to cancel the reservation.");
+        })
+        .catch((error) => {
+          console.error(
+            "An error occurred while cancelling the reservation:",
+            error
+          );
+        });
+    }
+  };
   return (
     <main>
       <h1>Dashboard</h1>
@@ -198,6 +243,18 @@ function Dashboard() {
                     }}
                   >
                     Seat
+                  </button>
+                  <Link to={`/reservations/${reservation.reservation_id}/edit`}>
+                    <button>Edit</button>
+                  </Link>
+
+                  <button
+                    data-reservation-id-cancel={reservation.reservation_id}
+                    onClick={() =>
+                      handleCancelConfirmation(reservation.reservation_id)
+                    }
+                  >
+                    Cancel
                   </button>
                 </div>
               )}

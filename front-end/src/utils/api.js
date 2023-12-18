@@ -331,3 +331,46 @@ export async function isTableOccupied(table_id, signal) {
     throw error;
   }
 }
+
+export async function readReservation(reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
+
+  try {
+    const response = await fetch(url, { headers, signal });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch reservation details. Status: ${response.status}`
+      );
+    }
+
+    return responseData.data;
+  } catch (error) {
+    console.error("Error fetching reservation details:", error);
+    throw error;
+  }
+}
+
+export async function updateReservation(reservation_id, updatedData, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: updatedData }), // Wrap the updatedData in a 'data' property
+  };
+
+  try {
+    const response = await fetch(url, { ...options, signal });
+    const responseData = await response.json();
+
+    if (response.status !== 200 && response.status !== 204) {
+      throw new Error(responseData.error || "Failed to update reservation");
+    }
+
+    return responseData.data;
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+    throw error;
+  }
+}

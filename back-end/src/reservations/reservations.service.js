@@ -63,7 +63,7 @@ async function read(reservation_id) {
 }
 
 async function updateStatus(reservation_id, newStatus) {
-  const validStatusValues = ["booked", "seated", "finished"];
+  const validStatusValues = ["booked", "seated", "finished", "cancelled"];
 
   if (!validStatusValues.includes(newStatus)) {
     throw { status: 400, message: "Invalid status value" };

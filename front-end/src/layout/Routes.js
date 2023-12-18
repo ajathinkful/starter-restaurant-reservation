@@ -7,6 +7,7 @@ import NewTableForm from "../components/NewTableForm";
 import { today } from "../utils/date-time";
 import SeatReservation from "../components/SeatReservation";
 import Search from "../components/Search";
+import ReservationEdit from "../components/ReservationEdit";
 
 function Routes() {
   return (
@@ -28,6 +29,11 @@ function Routes() {
       </Route>
       <Route path="/reservations/:reservation_id/seat" exact>
         <SeatReservation />
+      </Route>
+      <Route path="/reservations/:reservation_id/edit">
+        {" "}
+        {/* Add this route */}
+        <ReservationEdit />
       </Route>
       <Route path="/search">
         <Search />
