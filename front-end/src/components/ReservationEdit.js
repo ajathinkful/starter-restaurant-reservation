@@ -55,6 +55,17 @@ function ReservationEdit() {
     // ...
 
     try {
+      const reservation = await readReservation(reservation_id);
+
+      // Check if the reservation status is "booked"
+      if (reservation.status !== "booked") {
+        setFormError(
+          "Reservations with a status other than 'booked' cannot be edited."
+        );
+        return;
+      }
+
+      // Proceed with the update only if the status is "booked"
       await updateReservation(reservation_id, formData);
       history.push(`/dashboard?date=${formData.reservation_date}`);
     } catch (error) {
