@@ -25,7 +25,8 @@ function NewReservationForm() {
   const handleChange = ({ target }) => {
     setFormData({
       ...formData,
-      [target.name]: target.value,
+      [target.name]:
+        target.name === "people" ? parseInt(target.value, 10) : target.value,
     });
   };
 

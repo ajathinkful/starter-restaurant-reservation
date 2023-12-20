@@ -100,9 +100,12 @@ async function create({ data = {} }) {
 
 // Insert new reservation into the database
 
-async function list() {
-  // Fetch all reservations from the database
-  return await knex("reservations").select("*");
+async function list(date) {
+  // Fetch reservations for the specified date from the database
+  return await knex("reservations")
+    .select("*")
+    .where("reservation_date", date)
+    .orderBy("reservation_time");
 }
 
 async function read(reservation_id) {
