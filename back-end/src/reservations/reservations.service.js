@@ -2,7 +2,7 @@
 
 const knex = require("../db/connection");
 
-async function create({ data }) {
+async function create({ data = {} }) {
   const {
     first_name,
     last_name,
@@ -12,8 +12,6 @@ async function create({ data }) {
     people,
   } = data;
 
-  console.log("Received Data:", data);
-
   if (!first_name) {
     console.log("Error: first_name");
     throw { status: 400, message: "first_name" };
@@ -22,6 +20,63 @@ async function create({ data }) {
   if (!last_name) {
     console.log("Error: last_name");
     throw { status: 400, message: "last_name" };
+  }
+
+  if (!mobile_number) {
+    console.log("Error: mobile_number is missing");
+    throw { status: 400, message: "mobile_number is missing" };
+  }
+
+  if (mobile_number.trim() === "") {
+    console.log("Error: mobile_number is empty");
+    throw { status: 400, message: "mobile_number is empty" };
+  }
+
+  if (!reservation_date) {
+    console.log("Error: reservation_date is missing");
+    throw { status: 400, message: "reservation_date is missing" };
+  }
+
+  if (reservation_date.trim() === "") {
+    console.log("Error: reservation_date is empty");
+    throw { status: 400, message: "reservation_date is empty" };
+  }
+
+  // Check if reservation_date is a valid date
+  if (isNaN(new Date(reservation_date))) {
+    console.log("Error: reservation_date is not a date");
+    throw { status: 400, message: "reservation_date is not a date" };
+  }
+
+  if (!people) {
+    console.log("Error: people is missing");
+    throw { status: 400, message: "people is missing" };
+  }
+
+  if (people === 0) {
+    console.log("Error: people is zero");
+    throw { status: 400, message: "people is zero" };
+  }
+
+  if (isNaN(people) || !Number.isInteger(people)) {
+    console.log("Error: people is not a number");
+    throw { status: 400, message: "people is not a number" };
+  }
+
+  if (!reservation_time) {
+    console.log("Error: reservation_time is missing");
+    throw { status: 400, message: "reservation_time is missing" };
+  }
+
+  if (reservation_time.trim() === "") {
+    console.log("Error: reservation_time is empty");
+    throw { status: 400, message: "reservation_time is empty" };
+  }
+
+  // Check if reservation_time is a valid time (using a simple regex for illustration)
+  if (!/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(reservation_time)) {
+    console.log("Error: reservation_time is not a valid time");
+    throw { status: 400, message: "reservation_time is not a valid time" };
   }
 
   // Check if required fields are present
@@ -40,6 +95,10 @@ async function create({ data }) {
 
   return newReservation;
 }
+
+// Check if required fields are present
+
+// Insert new reservation into the database
 
 async function list() {
   // Fetch all reservations from the database
