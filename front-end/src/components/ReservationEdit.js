@@ -1,3 +1,4 @@
+// ReservationEdit.js
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { readReservation, updateReservation } from "../utils/api";
@@ -21,8 +22,13 @@ function ReservationEdit() {
   useEffect(() => {
     const abortController = new AbortController();
 
-    readReservation(reservation_id, abortController.signal)
-      .then((reservation) => {
+    const fetchReservation = async () => {
+      try {
+        const reservation = await readReservation(
+          reservation_id,
+          abortController.signal
+        );
+
         // Format the reservation date for input type date
         const formattedDate = reservation.reservation_date.split("T")[0];
 
@@ -35,8 +41,12 @@ function ReservationEdit() {
           people: reservation.people,
           // Set other properties as needed for editing
         });
-      })
-      .catch(setFormError);
+      } catch (error) {
+        setFormError(error);
+      }
+    };
+
+    fetchReservation();
 
     return () => abortController.abort();
   }, [reservation_id]);
@@ -52,8 +62,45 @@ function ReservationEdit() {
     event.preventDefault();
 
     // Validation logic similar to the NewReservationForm component
-    // ...
+    const selectedDateTime = `${formData.reservation_date}T${formData.reservation_time}:00.000Z`;
+    const selectedDate = new Date(selectedDateTime);
 
+    // Check if the selected date is a Tuesday
+    if (isTuesday(selectedDate)) {
+      setFormError(
+        "Reservations cannot be made on Tuesdays. Please choose a different date."
+      );
+      return;
+    }
+
+    // Check if the selected date is in the past
+    const now = new Date(); // Current date and time
+    if (selectedDate < now) {
+      setFormError(
+        "Past reservations are not allowed. Please choose a future date."
+      );
+      return;
+    }
+
+    // Set opening time to 10:30 AM and closing time to 9:30 PM in the client's local time zone
+    const openingTime = new Date(selectedDate);
+    openingTime.setHours(10, 30, 0, 0);
+
+    const closingTime = new Date(selectedDate);
+    closingTime.setHours(21, 30, 0, 0);
+
+    const selectedTime = new Date(selectedDate);
+
+    // Check if the selected time is outside the allowed range
+    const isTimeBeforeOpening = selectedTime < openingTime;
+    const isTimeAfterClosing = selectedTime > closingTime;
+
+    if (isTimeBeforeOpening || isTimeAfterClosing) {
+      setFormError(
+        "Reservations are only allowed between 10:30 AM and 9:30 PM. Please choose a different time."
+      );
+      return;
+    }
     try {
       const reservation = await readReservation(reservation_id);
 
@@ -65,8 +112,51 @@ function ReservationEdit() {
         return;
       }
 
-      // Proceed with the update only if the status is "booked"
+      // Check if the reservation time is being changed
+      // Check if the reservation time is being changed
+      // Check if the reservation time is being changed
+      const isTimeChanged =
+        reservation.reservation_time !== formData.reservation_time;
+
+      // Proceed with the update only if the status is "booked" and the time is changed
+      if (isTimeChanged) {
+        // Combine the selected date and time for accurate comparison
+        const selectedDateTime = new Date(selectedDate);
+        selectedDateTime.setHours(formData.reservation_time.split(":")[0]);
+        selectedDateTime.setMinutes(formData.reservation_time.split(":")[1]);
+
+        // Check if the reservation time is too close to closing time (within 60 minutes)
+        const timeBeforeClosing = new Date(closingTime);
+        timeBeforeClosing.setMinutes(timeBeforeClosing.getMinutes() - 60); // Set time 60 minutes before closing
+
+        // Check if the selected time is within the closing time and after the opening time
+        if (
+          selectedDateTime >= openingTime &&
+          selectedDateTime <= closingTime
+        ) {
+          // Check if the selected time is too close to closing time (within 60 minutes)
+          if (selectedDateTime <= timeBeforeClosing) {
+            setFormError(
+              "Reservations cannot be made within 60 minutes of closing time. Please choose a later time."
+            );
+            return;
+          }
+        } else {
+          // Handle the case where the selected time is outside the allowed range (9:30 PM - 10:29 AM)
+          setFormError(
+            "Reservations are only allowed between 10:30 AM and 9:30 PM. Please choose a different time."
+          );
+          return;
+        }
+      }
+
+      // Log to check if the updateReservation function is called
+      console.log("Updating reservation...");
+
+      // Proceed with the update
       await updateReservation(reservation_id, formData);
+
+      // Redirect to the reservation details page
       history.push(`/dashboard?date=${formData.reservation_date}`);
     } catch (error) {
       setFormError(error.message);

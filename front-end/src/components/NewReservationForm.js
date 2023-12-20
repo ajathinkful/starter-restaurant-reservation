@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { createReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
@@ -16,6 +16,12 @@ function NewReservationForm() {
   });
   const [formError, setFormError] = useState(null);
 
+  useEffect(() => {
+    // Log the browser's time zone offset
+    const browserTimeZoneOffset = new Date().getTimezoneOffset();
+    console.log("Browser Time Zone Offset:", browserTimeZoneOffset);
+  }, []); // Run once when the component mounts
+
   const handleChange = ({ target }) => {
     setFormData({
       ...formData,
@@ -27,39 +33,15 @@ function NewReservationForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Log the selected date and time for further verification
+    console.log(
+      "Selected Date and Time (Client):",
+      formData.reservation_date,
+      formData.reservation_time
+    );
+
     const selectedDateTime = `${formData.reservation_date}T${formData.reservation_time}:00.000Z`;
     const selectedDate = new Date(selectedDateTime);
-
-    const openingTime = new Date(selectedDate);
-    openingTime.setUTCHours(10, 30, 0, 0); // Set opening time to 10:30 AM UTC
-
-    if (selectedDate < openingTime) {
-      setFormError(
-        "Reservations cannot be made before 10:30 AM. Please choose a later time."
-      );
-      return;
-    }
-
-    const closingTime = new Date(selectedDate);
-    closingTime.setUTCHours(21, 30, 0, 0); // Set closing time to 9:30 PM UTC
-
-    if (selectedDate > closingTime) {
-      setFormError(
-        "Reservations cannot be made after 9:30 PM. Please choose an earlier time."
-      );
-      return;
-    }
-
-    // Check if the reservation time is too close to closing time (within 60 minutes)
-    const timeBeforeClosing = new Date(selectedDate);
-    timeBeforeClosing.setUTCHours(20, 30, 0, 0); // Set time 60 minutes before closing
-
-    if (selectedDate <= timeBeforeClosing) {
-      setFormError(
-        "Reservations cannot be made within 60 minutes of closing time. Please choose a later time."
-      );
-      return;
-    }
 
     // Check if the selected date is a Tuesday
     if (isTuesday(selectedDate)) {
@@ -69,11 +51,26 @@ function NewReservationForm() {
       return;
     }
 
-    // Check if the selected date is in the past
+    // Check if the selected date and time combination is in the past
     const now = new Date(); // Current date and time
     if (selectedDate < now) {
       setFormError(
-        "Past reservations are not allowed. Please choose a future date."
+        "Past reservations are not allowed. Please choose a future date and time."
+      );
+      return;
+    }
+
+    // Set opening time to 10:30 AM and closing time to 9:30 PM
+    const openingTime = new Date(selectedDate);
+    openingTime.setUTCHours(10, 30, 0, 0);
+
+    const closingTime = new Date(selectedDate);
+    closingTime.setUTCHours(21, 30, 0, 0);
+
+    // Check if the reservation time is outside the allowed range
+    if (selectedDate < openingTime || selectedDate > closingTime) {
+      setFormError(
+        "Reservations are only allowed between 10:30 AM and 9:30 PM. Please choose a different time."
       );
       return;
     }

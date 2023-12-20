@@ -75,6 +75,13 @@ async function updateStatus(reservation_id, newStatus) {
     .returning("*");
 }
 
+async function updateDetails(reservation_id, updatedDetails) {
+  return await knex("reservations")
+    .where({ reservation_id })
+    .update(updatedDetails)
+    .returning("*");
+}
+
 // back-end/src/reservations/reservations.service.js
 
 async function search(mobile_number) {
@@ -101,5 +108,6 @@ module.exports = {
   list,
   read,
   updateStatus,
+  updateDetails,
   search,
 };

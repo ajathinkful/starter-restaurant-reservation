@@ -37,6 +37,18 @@ async function updateStatus(req, res) {
   res.json({ data: updatedReservation });
 }
 
+async function updateDetails(req, res) {
+  const { reservation_id } = req.params;
+  const updatedDetails = req.body.data; // Assuming your client sends the updated data in the request body
+
+  const updatedReservation = await service.updateDetails(
+    reservation_id,
+    updatedDetails
+  );
+
+  res.json({ data: updatedReservation });
+}
+
 async function search(req, res) {
   const { mobile_number } = req.query;
   const data = await service.search(mobile_number);
@@ -48,5 +60,6 @@ module.exports = {
   create: [asyncErrorBoundary(create)],
   read: [asyncErrorBoundary(read)], // Add the read function
   updateStatus: [asyncErrorBoundary(updateStatus)],
+  updateDetails: [asyncErrorBoundary(updateDetails)],
   search: [asyncErrorBoundary(search)],
 };
