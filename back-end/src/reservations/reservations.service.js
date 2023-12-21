@@ -12,6 +12,9 @@ async function create({ data = {} }) {
     people,
   } = data;
 
+  const now = new Date();
+  const selectedDate = new Date(reservation_date);
+
   if (!first_name) {
     console.log("Error: first_name");
     throw { status: 400, message: "first_name" };
@@ -79,6 +82,17 @@ async function create({ data = {} }) {
     throw { status: 400, message: "reservation_time is not a valid time" };
   }
 
+  if (selectedDate <= now) {
+    throw { status: 400, message: "Reservation must be in the future." };
+  }
+
+  // Check if the reservation_date falls on a Tuesday
+  if (selectedDate.getUTCDay() === 2) {
+    throw {
+      status: 400,
+      message: "Reservation must be in the future, closed on Tuesday.",
+    };
+  }
   // Check if required fields are present
 
   // Insert new reservation into the database
