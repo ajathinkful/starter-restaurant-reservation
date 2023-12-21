@@ -234,16 +234,15 @@ function Dashboard() {
               </div>
               {reservation.status === "booked" && (
                 <div>
-                  <button
-                    onClick={() => {
-                      handleSeatClick(reservation.reservation_id);
-                      history.push(
-                        `/reservations/${reservation.reservation_id}/seat`
-                      );
-                    }}
-                  >
-                    Seat
-                  </button>
+                  <Link to={`/reservations/${reservation.reservation_id}/seat`}>
+                    <button
+                      onClick={() =>
+                        handleSeatClick(reservation.reservation_id)
+                      }
+                    >
+                      Seat
+                    </button>
+                  </Link>
                   <Link to={`/reservations/${reservation.reservation_id}/edit`}>
                     <button>Edit</button>
                   </Link>

@@ -100,24 +100,28 @@ function SeatReservation() {
         <ErrorAlert error={formError} />
         <div>
           <label htmlFor="table_id">Select a Table:</label>
-          <ul>
+          <select
+            id="table_id"
+            name="table_id"
+            value={selectedTable ? selectedTable.table_id : ""}
+            onChange={(e) => {
+              const selectedTableId = e.target.value;
+              const table = tables.find((t) => t.table_id === +selectedTableId);
+              setSelectedTable(table);
+            }}
+            required
+          >
+            <option value="" disabled>
+              Select a table
+            </option>
             {tables.map((table) => (
-              <li key={table.table_id}>
-                <label>
-                  <input
-                    type="radio"
-                    name="table_id"
-                    value={table.table_id}
-                    checked={selectedTable?.table_id === table.table_id}
-                    onChange={() => setSelectedTable(table)}
-                    required
-                  />
-                  {`${table.table_name} - ${table.capacity}`}
-                </label>
-              </li>
+              <option key={table.table_id} value={table.table_id}>
+                {`${table.table_name} - ${table.capacity}`}
+              </option>
             ))}
-          </ul>
+          </select>
         </div>
+
         <button type="submit">Submit</button>
         <button type="button" onClick={handleCancel}>
           Cancel
