@@ -3,6 +3,13 @@
 const service = require("./tables.seat.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
+function handleMissingData(req, res, next) {
+  if (!req.body.data) {
+    req.body.data = {};
+  }
+  next();
+}
+
 // Seat handler for table resources
 async function seatReservation(req, res) {
   const { reservation_id } = req.body.data;
@@ -19,5 +26,8 @@ async function seatReservation(req, res) {
 
 // Export your controller function
 module.exports = {
-  seatReservation: [asyncErrorBoundary(seatReservation)],
+  seatReservation: [
+    handleMissingData, // Apply the middleware
+    asyncErrorBoundary(seatReservation),
+  ],
 };
