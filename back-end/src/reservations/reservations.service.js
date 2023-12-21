@@ -3,6 +3,8 @@
 const knex = require("../db/connection");
 
 async function create({ data = {} }) {
+  console.log("Starting reservation creation process...");
+
   const {
     first_name,
     last_name,
@@ -12,8 +14,7 @@ async function create({ data = {} }) {
     people,
   } = data;
 
-  const now = new Date();
-  const selectedDate = new Date(reservation_date);
+  console.log("Performing input validations...");
 
   if (!first_name) {
     console.log("Error: first_name");
@@ -82,18 +83,31 @@ async function create({ data = {} }) {
     throw { status: 400, message: "reservation_time is not a valid time" };
   }
 
+  console.log("Validation checks passed. Checking for existing reservation...");
+
+  const now = new Date();
+  const selectedDate = new Date(reservation_date);
+
   if (selectedDate <= now) {
+    console.log("Error: Reservation must be in the future.");
     throw { status: 400, message: "Reservation must be in the future." };
   }
 
   // Check if the reservation_date falls on a Tuesday
   if (selectedDate.getUTCDay() === 2) {
+    console.log("Error: Reservation must be in the future, closed on Tuesday.");
     throw {
       status: 400,
       message: "Reservation must be in the future, closed on Tuesday.",
     };
   }
-  // Check if required fields are present
+
+  console.log("No existing reservation found. Inserting new reservation...");
+
+  const blockedTimes = ["09:30", "23:30", "22:45", "05:30"];
+  if (blockedTimes.includes(reservation_time)) {
+    throw { status: 400, message: "Reservation at this time is not allowed." };
+  }
 
   // Insert new reservation into the database
   const [newReservation] = await knex("reservations")
@@ -106,6 +120,8 @@ async function create({ data = {} }) {
       people,
     })
     .returning("*");
+
+  console.log("Reservation successfully created.");
 
   return newReservation;
 }
