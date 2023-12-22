@@ -121,7 +121,7 @@ async function create({ data = {} }) {
     })
     .returning("*");
 
-  console.log("Reservation successfully created.");
+  console.log("Reservation successfully created.", newReservation);
 
   return newReservation;
 }

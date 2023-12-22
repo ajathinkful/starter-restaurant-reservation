@@ -5,7 +5,7 @@ const knex = require("../db/connection");
 // Create function for table resources
 async function create({ data = {} }) {
   // Extract data from the request body
-  const { table_name, capacity } = data;
+  const { table_name, capacity, reservation_id } = data;
 
   if (!table_name) {
     console.log("Error: table_name is missing");
@@ -40,10 +40,14 @@ async function create({ data = {} }) {
 
   // Insert new table into the database
   const [newTable] = await knex("tables")
-    .insert({ table_name, capacity })
+    .insert({
+      table_name,
+      capacity,
+      reservation_id: reservation_id !== undefined ? reservation_id : null,
+    })
     .returning("*");
 
-  console.log("Table successfully created.");
+  console.log("Table successfully created.", newTable);
 
   return newTable;
 }
