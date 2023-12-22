@@ -44,6 +44,7 @@ async function create({ data = {} }) {
       table_name,
       capacity,
       reservation_id: reservation_id !== undefined ? reservation_id : null,
+      occupied: reservation_id !== undefined ? true : false,
     })
     .returning("*");
 

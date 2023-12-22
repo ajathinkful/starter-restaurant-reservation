@@ -134,6 +134,8 @@ function Dashboard() {
         .then(() => {
           // 3. Refresh the page
           window.location.reload();
+
+          console.log("End of handleFinishConfirmation");
         })
         .catch((error) => {
           console.error("An error occurred while finishing the table:", error);

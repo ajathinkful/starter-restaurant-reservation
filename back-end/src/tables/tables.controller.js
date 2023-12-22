@@ -23,12 +23,13 @@ async function read(req, res) {
 
 async function finishTable(req, res) {
   const { table_id } = req.params;
+
+  console.log(`Start finishing table with ID ${table_id}`);
   await service.finishTable(table_id);
-  res
-    .status(200)
-    .json({
-      message: `Table with ID ${table_id} has been successfully finished.`,
-    });
+  console.log(`Table with ID ${table_id} has been successfully finished.`);
+  res.status(200).json({
+    message: `Table with ID ${table_id} has been successfully finished.`,
+  });
 }
 
 // Export your controller functions
