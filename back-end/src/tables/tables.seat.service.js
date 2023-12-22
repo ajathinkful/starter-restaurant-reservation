@@ -21,6 +21,10 @@ async function seatReservation(table_id, reservation_id) {
     };
   }
 
+  if (existingReservation.status === "seated") {
+    throw { status: 400, message: "Reservation is already seated" };
+  }
+
   const { capacity, occupied } = await knex("tables")
     .select("capacity", "occupied")
     .where({ table_id })
@@ -39,6 +43,10 @@ async function seatReservation(table_id, reservation_id) {
     .where({ table_id })
     .update({ occupied: true, reservation_id })
     .returning("*");
+
+  await knex("reservations")
+    .where({ reservation_id })
+    .update({ status: "seated" });
 
   // Update the reservation in the database to mark it as seated
   console.log("Updated table:", seatedTable);

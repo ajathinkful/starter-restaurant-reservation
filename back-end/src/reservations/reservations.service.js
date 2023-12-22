@@ -5,6 +5,8 @@ const knex = require("../db/connection");
 async function create({ data = {} }) {
   console.log("Starting reservation creation process...");
 
+  const { table_name, capacity, reservation_id, status } = data;
+
   const {
     first_name,
     last_name,
@@ -109,6 +111,14 @@ async function create({ data = {} }) {
     throw { status: 400, message: "Reservation at this time is not allowed." };
   }
 
+  if (status === "seated" || status === "finished") {
+    console.log(`Error: Reservation with status '${status}' cannot be created`);
+    throw {
+      status: 400,
+      message: `Reservation with status '${status}' cannot be created`,
+    };
+  }
+
   // Insert new reservation into the database
   const [newReservation] = await knex("reservations")
     .insert({
@@ -135,6 +145,7 @@ async function list(date) {
   return await knex("reservations")
     .select("*")
     .where("reservation_date", date)
+    .whereNot("status", "finished")
     .orderBy("reservation_time");
 }
 
@@ -157,8 +168,30 @@ async function read(reservation_id) {
 async function updateStatus(reservation_id, newStatus) {
   const validStatusValues = ["booked", "seated", "finished", "cancelled"];
 
+  // Check if the provided new status is unknown
+  if (!validStatusValues.includes(newStatus)) {
+    throw { status: 400, message: "unknown status value" };
+  }
+
+  // Check if the reservation with the given ID exists
+  const existingReservation = await knex("reservations")
+    .where({ reservation_id })
+    .first();
+
+  if (!existingReservation) {
+    throw {
+      status: 404,
+      message: `Reservation with ID ${reservation_id} not found`,
+    };
+  }
+
+  // Check if the provided new status is invalid
   if (!validStatusValues.includes(newStatus)) {
     throw { status: 400, message: "Invalid status value" };
+  }
+
+  if (existingReservation.status === "finished") {
+    throw { status: 400, message: "A finished reservation cannot be updated" };
   }
 
   const [updatedReservation] = await knex("reservations")

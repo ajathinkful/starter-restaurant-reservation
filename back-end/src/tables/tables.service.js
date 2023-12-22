@@ -85,6 +85,17 @@ async function finishTable(table_id) {
     };
   }
 
+  // Fetch the reservation_id associated with the table
+  const { reservation_id } = await knex("tables")
+    .select("reservation_id")
+    .where({ table_id })
+    .first();
+
+  // Update the reservation in the database to mark it as finished
+  await knex("reservations")
+    .where({ reservation_id })
+    .update({ status: "finished" });
+
   await knex("tables")
     .where({ table_id })
     .update({ occupied: false, reservation_id: null });
