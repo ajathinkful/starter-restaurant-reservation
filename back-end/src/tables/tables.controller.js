@@ -24,7 +24,11 @@ async function read(req, res) {
 async function finishTable(req, res) {
   const { table_id } = req.params;
   await service.finishTable(table_id);
-  res.sendStatus(204); // No content, indicating successful deletion
+  res
+    .status(200)
+    .json({
+      message: `Table with ID ${table_id} has been successfully finished.`,
+    });
 }
 
 // Export your controller functions

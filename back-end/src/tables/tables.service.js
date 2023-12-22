@@ -71,6 +71,15 @@ async function read(table_id) {
 
 async function finishTable(table_id) {
   // Update the table in the database to mark it as available
+  const table = await read(table_id);
+
+  if (!table.occupied) {
+    throw {
+      status: 400,
+      message: `Table with ID ${table_id} is not occupied`,
+    };
+  }
+
   await knex("tables")
     .where({ table_id })
     .update({ occupied: false, reservation_id: null });
