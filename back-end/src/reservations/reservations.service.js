@@ -161,17 +161,144 @@ async function updateStatus(reservation_id, newStatus) {
     throw { status: 400, message: "Invalid status value" };
   }
 
-  return await knex("reservations")
+  const [updatedReservation] = await knex("reservations")
     .where({ reservation_id })
     .update({ status: newStatus })
     .returning("*");
+
+  return { status: updatedReservation.status };
 }
 
 async function updateDetails(reservation_id, updatedDetails) {
-  return await knex("reservations")
+  console.log(
+    `Starting updateDetails process for reservation ${reservation_id}...`
+  );
+
+  const existingReservation = await knex("reservations")
+    .where({ reservation_id })
+    .first();
+
+  if (!existingReservation) {
+    console.log(`Error: Reservation with ID ${reservation_id} not found`);
+    throw {
+      status: 404,
+      message: `Reservation with ID ${reservation_id} not found`,
+    };
+  }
+
+  const {
+    first_name,
+    last_name,
+    mobile_number,
+    reservation_date,
+    reservation_time,
+    people,
+  } = updatedDetails;
+
+  console.log("Performing input validations...");
+
+  // Validate if first_name is missing
+  if (!first_name) {
+    console.log("Error: first_name is missing");
+    throw { status: 400, message: "first_name is missing" };
+  }
+
+  // Validate if first_name is empty
+  if (first_name.trim() === "") {
+    console.log("Error: first_name is empty");
+    throw { status: 400, message: "first_name is empty" };
+  }
+
+  // Validate if last_name is missing
+  if (!last_name) {
+    console.log("Error: last_name is missing");
+    throw { status: 400, message: "last_name is missing" };
+  }
+
+  // Validate if last_name is empty
+  if (last_name.trim() === "") {
+    console.log("Error: last_name is empty");
+    throw { status: 400, message: "last_name is empty" };
+  }
+
+  if (!mobile_number) {
+    console.log("Error: mobile_number is missing");
+    throw { status: 400, message: "mobile_number is missing" };
+  }
+
+  // Validate if mobile_number is empty
+  if (mobile_number.trim() === "") {
+    console.log("Error: mobile_number is empty");
+    throw { status: 400, message: "mobile_number is empty" };
+  }
+
+  // Validate if reservation_date is missing
+  if (!reservation_date) {
+    console.log("Error: reservation_date is missing");
+    throw { status: 400, message: "reservation_date is missing" };
+  }
+
+  // Validate if reservation_date is empty
+  if (reservation_date.trim() === "") {
+    console.log("Error: reservation_date is empty");
+    throw { status: 400, message: "reservation_date is empty" };
+  }
+
+  // Check if reservation_date is a valid date
+  if (isNaN(new Date(reservation_date))) {
+    console.log("Error: reservation_date is not a date");
+    throw { status: 400, message: "reservation_date is not a date" };
+  }
+
+  // Validate if reservation_time is missing
+  if (!reservation_time) {
+    console.log("Error: reservation_time is missing");
+    throw { status: 400, message: "reservation_time is missing" };
+  }
+
+  // Validate if reservation_time is empty
+  if (reservation_time.trim() === "") {
+    console.log("Error: reservation_time is empty");
+    throw { status: 400, message: "reservation_time is empty" };
+  }
+
+  // Check if reservation_time is a valid time (using a simple regex for illustration)
+  if (!/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(reservation_time)) {
+    console.log("Error: reservation_time is not a valid time");
+    throw { status: 400, message: "reservation_time is not a valid time" };
+  }
+
+  // Other validations for last_name, mobile_number, reservation_date, etc.
+
+  // Validate if people is missing
+  if (!people) {
+    console.log("Error: people is missing");
+    throw { status: 400, message: "people is missing" };
+  }
+
+  // Validate if people is zero
+  if (people === 0) {
+    console.log("Error: people is zero");
+    throw { status: 400, message: "people is zero" };
+  }
+
+  // Validate if people is not a number
+  if (isNaN(people) || !Number.isInteger(people)) {
+    console.log("Error: people is not a number");
+    throw { status: 400, message: "people is not a number" };
+  }
+
+  console.log("Validation checks passed. Updating reservation details...");
+
+  // Perform the update operation in the database
+  const [updatedReservation] = await knex("reservations")
     .where({ reservation_id })
     .update(updatedDetails)
     .returning("*");
+
+  console.log("Reservation details successfully updated.", updatedReservation);
+
+  return updatedReservation;
 }
 
 // back-end/src/reservations/reservations.service.js
