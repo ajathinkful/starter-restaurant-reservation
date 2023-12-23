@@ -93,7 +93,7 @@ export async function listReservations(date, signal) {
     return formatReservationTime(filteredReservations);
   } catch (error) {
     // Handle errors
-    console.error(error.stack);
+    console.error(error);
     throw error;
   }
 }

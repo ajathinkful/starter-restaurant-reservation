@@ -34,7 +34,10 @@ function Dashboard() {
           console.log("Reservations:", reservations);
           setReservations(reservations);
         })
-        .catch(setReservationsError);
+        .catch((error) => {
+          console.error("Error fetching tables:", error);
+          setReservationsError("clicking too fast");
+        });
 
       listTables()
         .then((tables) => {
