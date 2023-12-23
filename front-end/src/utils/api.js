@@ -252,7 +252,7 @@ async function seatReservation(reservation_id, table_id, signal) {
     const { people: reservationPeople } = reservationData;
 
     // Fetch the selected table to check its capacity
-    const tableResponse = await fetch(`${BASE_URL}/tables/${table_id}`);
+    const tableResponse = await fetch(`${API_BASE_URL}/tables/${table_id}`);
     const tableData = await tableResponse.json();
 
     if (!tableResponse.ok) {
@@ -270,7 +270,7 @@ async function seatReservation(reservation_id, table_id, signal) {
     }
 
     // If capacity is sufficient, proceed with seating the reservation
-    const response = await fetch(`${BASE_URL}/tables/${table_id}/seat`, {
+    const response = await fetch(`${API_BASE_URL}/tables/${table_id}/seat`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
