@@ -28,21 +28,27 @@ function Dashboard() {
   function loadDashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
-    listReservations(date, abortController.signal)
-      .then((reservations) => {
-        console.log("Reservations:", reservations);
-        setReservations(reservations);
-      })
-      .catch(setReservationsError);
+    try {
+      listReservations(date, abortController.signal)
+        .then((reservations) => {
+          console.log("Reservations:", reservations);
+          setReservations(reservations);
+        })
+        .catch(setReservationsError);
 
-    listTables()
-      .then((tables) => {
-        setTables(tables);
-      })
-      .catch((error) => {
-        console.error("Error fetching tables:", error);
-        setDashboardError(error); // Update the state variable
-      });
+      listTables()
+        .then((tables) => {
+          setTables(tables);
+        })
+        .catch((error) => {
+          console.error("Error fetching tables:", error);
+          setDashboardError(error);
+        });
+    } catch (error) {
+      console.error("An error occurred while loading the dashboard:", error);
+    }
+
+    // Return a cleanup function to cancel the request on unmount or dependency change
     return () => abortController.abort();
   }
 
@@ -69,29 +75,10 @@ function Dashboard() {
 
   async function handleSeatClick(reservationId) {
     try {
-      // Send PUT request to update reservation status to "seated"
-      await fetch(
-        `http://localhost:5001/reservations/${reservationId}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data: {
-              status: "seated",
-            },
-          }),
-        }
-      );
-
       // Retain the existing functionality to navigate to the seat page
       history.push(`/reservations/${reservationId}/seat`);
-
-      // Refresh the dashboard after updating the status
-      loadDashboard();
     } catch (error) {
-      console.error("An error occurred while seating the reservation:", error);
+      console.error("An error occurred while processing the request:", error);
     }
   }
 
