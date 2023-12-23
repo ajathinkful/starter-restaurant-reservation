@@ -13,6 +13,9 @@ import {
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+
 function Dashboard() {
   const query = useQuery();
   const queryDate = query.get("date");
@@ -29,7 +32,7 @@ function Dashboard() {
     const abortController = new AbortController();
     setReservationsError(null);
     try {
-      listReservations(date, abortController.signal)
+      listReservations(date, abortController.signal, API_BASE_URL)
         .then((reservations) => {
           console.log("Reservations:", reservations);
           setReservations(reservations);
@@ -93,7 +96,7 @@ function Dashboard() {
 
     if (isTableReady) {
       // 1. Send a DELETE request to /tables/:table_id/seat
-      fetch(`http://localhost:5001/tables/${tableId}/seat`, {
+      fetch(`${API_BASE_URL}/tables/${tableId}/seat`, {
         method: "DELETE",
       })
         .then((response) => {
@@ -101,7 +104,7 @@ function Dashboard() {
             console.log(`Table ${tableId} has been successfully finished.`);
             // 2. Update the corresponding reservation status to "finished"
             return fetch(
-              `http://localhost:5001/reservations/${reservationId}/status`,
+              `${API_BASE_URL}/reservations/${reservationId}/status`,
               {
                 method: "PUT",
                 headers: {
@@ -140,7 +143,7 @@ function Dashboard() {
 
     if (confirmCancel) {
       // Send a PUT request to update reservation status to "cancelled"
-      fetch(`http://localhost:5001/reservations/${reservationId}/status`, {
+      fetch(`${API_BASE_URL}/reservations/${reservationId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
