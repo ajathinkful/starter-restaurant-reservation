@@ -239,7 +239,7 @@ async function seatReservation(reservation_id, table_id, signal) {
   try {
     // Fetch the selected reservation to check the number of people
     const reservationResponse = await fetch(
-      `${BASE_URL}/reservations/${reservation_id}`
+      `${API_BASE_URL}/reservations/${reservation_id}`
     );
     const reservationData = await reservationResponse.json();
 
