@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatAsDate, formatAsTime } from "../utils/date-time";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+
 function Search() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -14,7 +17,7 @@ function Search() {
   const handleFindClick = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5001/reservations?mobile_number=${phoneNumber}`
+        `${API_BASE_URL}/reservations?mobile_number=${phoneNumber}`
       );
 
       if (response.ok) {
@@ -37,7 +40,7 @@ function Search() {
 
     if (confirmCancel) {
       // Send a PUT request to update reservation status to "cancelled"
-      fetch(`http://localhost:5001/reservations/${reservationId}/status`, {
+      fetch(`${API_BASE_URL}/reservations/${reservationId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
