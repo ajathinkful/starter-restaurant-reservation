@@ -14,11 +14,12 @@ function Search() {
   const handleFindClick = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5001/reservations/search?mobile_number=${phoneNumber}`
+        `http://localhost:5001/reservations?mobile_number=${phoneNumber}`
       );
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Search Results Data:", data); // Add this line
         setSearchResults(data.data);
         setNoResults(data.data.length === 0);
       } else {
@@ -88,7 +89,7 @@ function Search() {
         placeholder="Enter a customer's phone number"
       />
 
-      <button type="button" onClick={handleFindClick}>
+      <button type="submit" onClick={handleFindClick}>
         Find
       </button>
 
