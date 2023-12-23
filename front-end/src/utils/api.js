@@ -353,11 +353,19 @@ export async function readReservation(reservation_id, signal) {
 }
 
 export async function updateReservation(reservation_id, updatedData, signal) {
+  const formattedTime = updatedData.reservation_time.slice(0, 5);
+
+  // Create the updatedDetails object with the formatted reservation_time
+  const updatedDetails = {
+    ...updatedData,
+    reservation_time: formattedTime,
+  };
   const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
+
   const options = {
     method: "PUT",
     headers,
-    body: JSON.stringify({ data: updatedData }), // Wrap the updatedData in a 'data' property
+    body: JSON.stringify({ data: updatedDetails }), // Wrap the updatedData in a 'data' property
   };
 
   try {

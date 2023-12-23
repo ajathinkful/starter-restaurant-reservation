@@ -295,6 +295,9 @@ async function updateDetails(reservation_id, updatedDetails) {
     throw { status: 400, message: "reservation_time is empty" };
   }
 
+  console.log("Form Data:", updatedDetails); // Log the entire updatedDetails object for debugging
+  console.log("Reservation time:", updatedDetails.reservation_time); // Log the reservation_time for debugging
+
   // Check if reservation_time is a valid time (using a simple regex for illustration)
   if (!/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(reservation_time)) {
     console.log("Error: reservation_time is not a valid time");

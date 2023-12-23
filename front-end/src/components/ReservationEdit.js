@@ -52,10 +52,18 @@ function ReservationEdit() {
   }, [reservation_id]);
 
   const handleChange = ({ target }) => {
-    setFormData({
-      ...formData,
-      [target.name]: target.value,
-    });
+    // Extract hours and minutes from the time input
+    const formattedTime =
+      target.name === "reservation_time"
+        ? target.value.slice(0, 5)
+        : target.value;
+
+    console.log("Formatted Time:", formattedTime);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [target.name]: formattedTime,
+    }));
   };
 
   const handleSubmit = async (event) => {
