@@ -4,7 +4,8 @@ import { createReservation, updateReservation } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { useRouteMatch } from "react-router-dom";
 
-const API_BASE_URL = "http://localhost:5001";
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
 
 function ReservationForm() {
   const history = useHistory();
