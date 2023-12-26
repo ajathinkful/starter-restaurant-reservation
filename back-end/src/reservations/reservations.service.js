@@ -251,6 +251,17 @@ async function updateDetails(reservation_id, updatedDetails) {
     };
   }
 
+  const { status } = existingReservation;
+  if (status !== "booked") {
+    console.log(
+      `Error: Reservation with status other than '${status}' cannot be updated`
+    );
+    throw {
+      status: 400,
+      message: `Reservation with status '${status}' cannot be updated`,
+    };
+  }
+
   const {
     first_name,
     last_name,
