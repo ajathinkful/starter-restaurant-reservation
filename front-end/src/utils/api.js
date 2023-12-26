@@ -382,3 +382,23 @@ export async function updateReservation(reservation_id, updatedData, signal) {
     throw error;
   }
 }
+
+export async function getReservation(reservation_id, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations/${reservation_id}`);
+
+  try {
+    const response = await fetch(url, { headers, signal });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch reservation details. Status: ${response.status}`
+      );
+    }
+
+    return responseData.data;
+  } catch (error) {
+    console.error("Error fetching reservation details:", error);
+    throw error;
+  }
+}

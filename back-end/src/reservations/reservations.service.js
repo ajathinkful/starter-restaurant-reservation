@@ -104,6 +104,38 @@ async function create({ data = {} }) {
     };
   }
 
+  console.log("Checking reservation time constraints...");
+
+  const openingTime = new Date(selectedDate);
+  openingTime.setUTCHours(10, 30, 0, 0);
+
+  const closingTime = new Date(selectedDate);
+  closingTime.setUTCHours(21, 30, 0, 0);
+
+  const selectedDateTime = new Date(
+    `${reservation_date}T${reservation_time}:00.000Z`
+  );
+
+  // Check if the reservation time is too early
+  if (selectedDateTime < openingTime) {
+    console.log("Error: Reservation time is too early.");
+    throw {
+      status: 400,
+      message:
+        "Reservation time is too early. The restaurant is closed from 10:30 PM to 10:30 AM.",
+    };
+  }
+
+  // Check if the reservation time is too close to closing
+  if (selectedDateTime > closingTime) {
+    console.log("Error: Reservation time is too close to closing.");
+    throw {
+      status: 400,
+      message:
+        "Reservation time is too close to closing. The restaurant closes at 10:30 PM.",
+    };
+  }
+
   console.log("No existing reservation found. Inserting new reservation...");
 
   const blockedTimes = ["09:30", "23:30", "22:45", "05:30"];
@@ -322,6 +354,62 @@ async function updateDetails(reservation_id, updatedDetails) {
   if (isNaN(people) || !Number.isInteger(people)) {
     console.log("Error: people is not a number");
     throw { status: 400, message: "people is not a number" };
+  }
+
+  const now = new Date();
+  const selectedDate = new Date(reservation_date);
+
+  if (selectedDate <= now) {
+    console.log("Error: Reservation must be in the future.");
+    throw { status: 400, message: "Reservation must be in the future." };
+  }
+
+  // Check if the reservation_date falls on a Tuesday
+  if (selectedDate.getUTCDay() === 2) {
+    console.log("Error: Reservation must be in the future, closed on Tuesday.");
+    throw {
+      status: 400,
+      message: "Reservation must be in the future, closed on Tuesday.",
+    };
+  }
+
+  console.log("Checking reservation time constraints...");
+
+  const openingTime = new Date(selectedDate);
+  openingTime.setUTCHours(10, 30, 0, 0);
+
+  const closingTime = new Date(selectedDate);
+  closingTime.setUTCHours(21, 30, 0, 0);
+
+  const selectedDateTime = new Date(
+    `${reservation_date}T${reservation_time}:00.000Z`
+  );
+
+  // Check if the reservation time is too early
+  if (selectedDateTime < openingTime) {
+    console.log("Error: Reservation time is too early.");
+    throw {
+      status: 400,
+      message:
+        "Reservation time is too early. The restaurant is closed from 10:30 PM to 10:30 AM.",
+    };
+  }
+
+  // Check if the reservation time is too close to closing
+  if (selectedDateTime > closingTime) {
+    console.log("Error: Reservation time is too close to closing.");
+    throw {
+      status: 400,
+      message:
+        "Reservation time is too close to closing. The restaurant closes at 10:30 PM.",
+    };
+  }
+
+  console.log("No existing reservation found. Inserting new reservation...");
+
+  const blockedTimes = ["09:30", "23:30", "22:45", "05:30"];
+  if (blockedTimes.includes(reservation_time)) {
+    throw { status: 400, message: "Reservation at this time is not allowed." };
   }
 
   console.log("Validation checks passed. Updating reservation details...");
